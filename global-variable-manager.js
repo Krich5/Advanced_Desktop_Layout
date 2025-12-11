@@ -1,8 +1,5 @@
 /**
- * Global Variable Updater for Webex Contact Center
- * Simple component to update a specific global variable
- * Set the variable ID in Desktop Layout attributes
- * V4
+ * V5
  */
 
 (function() {
@@ -19,7 +16,7 @@
       }
       
       .container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
         background: white;
         border-radius: 8px;
@@ -35,89 +32,18 @@
       
       .header h1 {
         font-size: 24px;
-        margin: 0 0 8px 0;
-        font-weight: 300;
-      }
-      
-      .header p {
-        font-size: 14px;
         margin: 0;
-        opacity: 0.9;
+        font-weight: 400;
       }
       
       .content {
-        padding: 24px;
-      }
-      
-      .status-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        margin-bottom: 24px;
-        border-left: 4px solid #049fd9;
-      }
-      
-      .status-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      
-      .status-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #dc3545;
-      }
-      
-      .status-indicator.connected {
-        background: #28a745;
-        animation: pulse 2s infinite;
-      }
-      
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-      
-      .status-text {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      
-      .info-box {
-        background: #e7f3ff;
-        border: 1px solid #b3d9ff;
-        border-radius: 6px;
-        padding: 16px;
-        margin-bottom: 24px;
-      }
-      
-      .info-box h3 {
-        margin: 0 0 8px 0;
-        font-size: 16px;
-        color: #004085;
-      }
-      
-      .info-box p {
-        margin: 0;
-        font-size: 14px;
-        color: #004085;
-      }
-      
-      .info-label {
-        font-weight: 600;
-        display: inline-block;
-        width: 120px;
+        padding: 32px;
       }
       
       .message {
-        padding: 12px 16px;
+        padding: 14px 18px;
         border-radius: 4px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         font-size: 14px;
         animation: slideIn 0.3s ease-out;
       }
@@ -145,100 +71,98 @@
         border-left: 4px solid #dc3545;
       }
       
-      .message.info {
-        background: #d1ecf1;
-        color: #0c5460;
-        border-left: 4px solid #17a2b8;
+      .section {
+        margin-bottom: 28px;
       }
       
-      .form-group {
-        margin-bottom: 20px;
+      .section-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
       }
       
-      .form-group label {
-        display: block;
-        margin-bottom: 8px;
+      .current-message {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 6px;
+        border: 2px solid #e9ecef;
+        min-height: 60px;
+      }
+      
+      .current-message-text {
+        font-size: 15px;
+        color: #212529;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      
+      .current-message-empty {
+        color: #6c757d;
+        font-style: italic;
+      }
+      
+      .editor-section {
+        margin-top: 32px;
+      }
+      
+      .editor-label {
+        font-size: 15px;
         font-weight: 500;
-        color: #495057;
-        font-size: 14px;
+        color: #212529;
+        margin-bottom: 12px;
       }
       
-      .form-group textarea {
+      textarea {
         width: 100%;
-        padding: 12px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 14px;
-        font-family: 'Courier New', monospace;
-        transition: border-color 0.2s;
+        padding: 14px;
+        border: 2px solid #ced4da;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+        transition: all 0.2s;
         box-sizing: border-box;
         resize: vertical;
-        min-height: 120px;
+        min-height: 140px;
+        line-height: 1.6;
       }
       
-      .form-group textarea:focus {
+      textarea:focus {
         outline: none;
         border-color: #049fd9;
-        box-shadow: 0 0 0 3px rgba(4, 159, 217, 0.1);
-      }
-      
-      .current-value {
-        background: #f8f9fa;
-        padding: 12px;
-        border-radius: 4px;
-        border: 1px solid #e9ecef;
-        margin-bottom: 16px;
-      }
-      
-      .current-value h4 {
-        margin: 0 0 8px 0;
-        font-size: 14px;
-        color: #6c757d;
-        font-weight: 500;
-      }
-      
-      .current-value pre {
-        margin: 0;
-        font-family: 'Courier New', monospace;
-        font-size: 13px;
-        color: #495057;
-        white-space: pre-wrap;
-        word-break: break-all;
+        box-shadow: 0 0 0 4px rgba(4, 159, 217, 0.1);
       }
       
       .button-group {
         display: flex;
         gap: 12px;
+        margin-top: 24px;
       }
       
       .btn {
-        padding: 12px 24px;
+        padding: 14px 28px;
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 15px;
+        font-weight: 600;
         transition: all 0.2s;
+        font-family: inherit;
       }
       
-      .btn-primary {
-        background: #049fd9;
+      .btn-save {
+        background: #28a745;
         color: white;
         flex: 1;
       }
       
-      .btn-primary:hover {
-        background: #037ba8;
-      }
-      
-      .btn-success {
-        background: #28a745;
-        color: white;
-        flex: 2;
-      }
-      
-      .btn-success:hover {
+      .btn-save:hover:not(:disabled) {
         background: #218838;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
       }
       
       .btn:disabled {
@@ -248,7 +172,7 @@
       
       .loading {
         text-align: center;
-        padding: 40px;
+        padding: 60px 20px;
         color: #6c757d;
       }
       
@@ -256,46 +180,38 @@
         border: 3px solid #f3f3f3;
         border-top: 3px solid #049fd9;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         animation: spin 1s linear infinite;
-        margin: 0 auto 16px;
+        margin: 0 auto 20px;
       }
       
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      
+      .char-count {
+        text-align: right;
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 8px;
+      }
     </style>
     
     <div class="container">
       <div class="header">
-        <h1 id="headerTitle">Global Variable Updater</h1>
-        <p id="headerSubtitle">Update global variable value</p>
+        <h1 id="pageTitle">Message Updater</h1>
       </div>
       
       <div class="content">
-        <div class="status-bar">
-          <div class="status-info">
-            <div class="status-indicator" id="statusIndicator"></div>
-            <span class="status-text" id="statusText">Connecting...</span>
-          </div>
-        </div>
-        
         <div id="messageContainer"></div>
-        
-        <div class="info-box">
-          <h3>Variable Information</h3>
-          <p><span class="info-label">Variable ID:</span><span id="varIdDisplay">Not set</span></p>
-          <p><span class="info-label">Org ID:</span><span id="orgIdDisplay">Not set</span></p>
-        </div>
-        
         <div id="mainContent"></div>
       </div>
     </div>
   `;
 
-  class GlobalVariableUpdater extends HTMLElement {
+  class MessageUpdater extends HTMLElement {
     constructor() {
       super();
       this.attachShadow({ mode: 'open' });
@@ -305,13 +221,13 @@
       this.orgId = '';
       this.dataCenter = '';
       this.variableId = '';
-      this.variableName = '';
-      this.currentValue = '';
+      this.title = '';
+      this.currentMessage = '';
       this.loading = false;
     }
     
     static get observedAttributes() {
-      return ['token', 'org-id', 'data-center', 'variable-id', 'variable-name'];
+      return ['token', 'org-id', 'data-center', 'variable-id', 'title'];
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
@@ -319,58 +235,36 @@
       if (name === 'org-id') this.orgId = newValue;
       if (name === 'data-center') this.dataCenter = newValue;
       if (name === 'variable-id') this.variableId = newValue;
-      if (name === 'variable-name') this.variableName = newValue;
-      
-      if (this.token && this.orgId && this.variableId) {
-        this.updateStatus(true);
-        this.updateInfoDisplay();
-      }
+      if (name === 'title') this.title = newValue;
     }
     
     connectedCallback() {
-      this.setupEventListeners();
-      
-      // Update header if variable name is provided
-      if (this.variableName) {
-        this.shadowRoot.getElementById('headerTitle').textContent = this.variableName;
+      // Update title if provided
+      if (this.title) {
+        this.shadowRoot.getElementById('pageTitle').textContent = this.title;
       }
       
       // Auto-load if we have credentials
       if (this.token && this.orgId && this.variableId) {
-        setTimeout(() => this.loadVariable(), 500);
-      }
-    }
-    
-    setupEventListeners() {
-      // Event listeners will be added dynamically when content is rendered
-    }
-    
-    updateInfoDisplay() {
-      this.shadowRoot.getElementById('varIdDisplay').textContent = this.variableId || 'Not set';
-      this.shadowRoot.getElementById('orgIdDisplay').textContent = this.orgId || 'Not set';
-    }
-    
-    updateStatus(connected) {
-      const indicator = this.shadowRoot.getElementById('statusIndicator');
-      const text = this.shadowRoot.getElementById('statusText');
-      
-      if (connected) {
-        indicator.classList.add('connected');
-        text.textContent = `Connected`;
+        setTimeout(() => this.loadMessage(), 300);
       } else {
-        indicator.classList.remove('connected');
-        text.textContent = 'Not connected';
+        this.showMessage('Missing configuration. Please check Desktop Layout settings.', 'error');
       }
     }
     
     showMessage(message, type = 'info') {
       const container = this.shadowRoot.getElementById('messageContainer');
+      container.innerHTML = '';
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${type}`;
       messageDiv.textContent = message;
       container.appendChild(messageDiv);
       
-      setTimeout(() => messageDiv.remove(), 5000);
+      setTimeout(() => {
+        if (messageDiv.parentNode) {
+          messageDiv.remove();
+        }
+      }, 5000);
     }
     
     getApiUrl() {
@@ -385,7 +279,7 @@
       return dcMap[this.dataCenter] || dcMap['us1'];
     }
     
-    async loadVariable() {
+    async loadMessage() {
       if (!this.token || !this.orgId || !this.variableId) {
         this.showMessage('Missing required configuration', 'error');
         return;
@@ -393,7 +287,7 @@
       
       this.loading = true;
       const mainContent = this.shadowRoot.getElementById('mainContent');
-      mainContent.innerHTML = '<div class="loading"><div class="spinner"></div>Loading variable...</div>';
+      mainContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading message...</p></div>';
       
       try {
         const apiUrl = this.getApiUrl();
@@ -406,16 +300,16 @@
         });
         
         if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          throw new Error(`Unable to load message (Error ${response.status})`);
         }
         
         const data = await response.json();
-        this.currentValue = data.variableValue || data.value || '';
+        this.currentMessage = data.variableValue || data.value || '';
         this.renderEditor();
-        this.showMessage('Variable loaded successfully', 'success');
       } catch (error) {
-        this.showMessage(`Error loading variable: ${error.message}`, 'error');
-        this.renderEditor(); // Show editor anyway so they can try to save
+        this.showMessage(`Error: ${error.message}`, 'error');
+        this.currentMessage = '';
+        this.renderEditor();
       } finally {
         this.loading = false;
       }
@@ -425,34 +319,58 @@
       const mainContent = this.shadowRoot.getElementById('mainContent');
       
       mainContent.innerHTML = `
-        <div class="current-value">
-          <h4>Current Value:</h4>
-          <pre>${this.escapeHtml(this.currentValue || 'No value set')}</pre>
+        <div class="section">
+          <div class="section-label">Current Message</div>
+          <div class="current-message">
+            <div class="current-message-text ${!this.currentMessage ? 'current-message-empty' : ''}">
+              ${this.escapeHtml(this.currentMessage) || 'No message set'}
+            </div>
+          </div>
         </div>
         
-        <div class="form-group">
-          <label for="newValue">New Value:</label>
-          <textarea id="newValue" placeholder="Enter new variable value...">${this.escapeHtml(this.currentValue)}</textarea>
+        <div class="editor-section">
+          <div class="editor-label">Update Message</div>
+          <textarea id="newMessage" placeholder="Enter your message here...">${this.escapeHtml(this.currentMessage)}</textarea>
+          <div class="char-count">
+            <span id="charCount">0</span> characters
+          </div>
         </div>
         
         <div class="button-group">
-          <button class="btn btn-primary" id="loadBtn">↻ Reload</button>
-          <button class="btn btn-success" id="saveBtn">Save Variable</button>
+          <button class="btn btn-save" id="saveBtn">Save Message</button>
         </div>
       `;
       
       // Add event listeners
-      mainContent.querySelector('#loadBtn').addEventListener('click', () => this.loadVariable());
-      mainContent.querySelector('#saveBtn').addEventListener('click', () => this.saveVariable());
+      const textarea = mainContent.querySelector('#newMessage');
+      const charCount = mainContent.querySelector('#charCount');
+      const saveBtn = mainContent.querySelector('#saveBtn');
+      
+      // Update character count
+      const updateCharCount = () => {
+        charCount.textContent = textarea.value.length;
+      };
+      updateCharCount();
+      
+      textarea.addEventListener('input', updateCharCount);
+      saveBtn.addEventListener('click', () => this.saveMessage());
+      
+      // Focus on textarea
+      textarea.focus();
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
     }
     
-    async saveVariable() {
-      const newValue = this.shadowRoot.getElementById('newValue').value;
+    async saveMessage() {
+      const newMessage = this.shadowRoot.getElementById('newMessage').value;
+      const saveBtn = this.shadowRoot.getElementById('saveBtn');
       
       if (!this.token || !this.orgId || !this.variableId) {
         this.showMessage('Missing required configuration', 'error');
         return;
       }
+      
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
       
       try {
         const apiUrl = this.getApiUrl();
@@ -463,19 +381,21 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            variableValue: newValue
+            variableValue: newMessage
           })
         });
         
         if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to save message (Error ${response.status})`);
         }
         
-        this.currentValue = newValue;
-        this.showMessage('Variable updated successfully', 'success');
-        this.loadVariable(); // Reload to confirm
+        this.currentMessage = newMessage;
+        this.showMessage('Message saved successfully!', 'success');
+        this.renderEditor();
       } catch (error) {
-        this.showMessage(`Error saving variable: ${error.message}`, 'error');
+        this.showMessage(`Error: ${error.message}`, 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Message';
       }
     }
     
@@ -487,11 +407,10 @@
   }
   
   // Check if already defined
-  if (!customElements.get('global-variable-updater')) {
-    customElements.define('global-variable-updater', GlobalVariableUpdater);
-    console.log('Global Variable Updater component registered successfully');
+  if (!customElements.get('message-updater')) {
+    customElements.define('message-updater', MessageUpdater);
+    console.log('Message Updater component registered');
   }
 })();
 
-// Log that script has loaded
-console.log('Global Variable Updater script loaded');
+console.log('Message Updater script loaded');
