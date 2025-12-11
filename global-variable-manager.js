@@ -701,5 +701,12 @@
     }
   }
   
-  customElements.define('global-variable-manager', GlobalVariableManager);
+  // Check if already defined
+  if (!customElements.get('global-variable-manager')) {
+    customElements.define('global-variable-manager', GlobalVariableManager);
+    console.log('Global Variable Manager component registered successfully');
+  }
 })();
+
+// Log that script has loaded
+console.log('Global Variable Manager script loaded');
