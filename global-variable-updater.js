@@ -1,7 +1,3 @@
-/**
- * V6
- */
-
 (function() {
   const template = document.createElement('template');
   template.innerHTML = `
@@ -9,29 +5,30 @@
       :host {
         display: block;
         font-family: 'CiscoSansTT Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        padding: 20px;
-        background: #f5f5f5;
+        padding: 12px;
+        background: transparent;
         height: 100%;
         overflow-y: auto;
       }
       
       .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: white;
+        width: 100%;
+        margin: 0;
+        background: transparent;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: none;
         overflow: hidden;
       }
       
       .header {
         background: linear-gradient(135deg, #049fd9 0%, #005073 100%);
         color: white;
-        padding: 24px;
+        padding: 16px;
+        border-radius: 8px 8px 0 0;
       }
       
       .header h1 {
-        font-size: 24px;
+        font-size: 20px;
         margin: 0 0 8px 0;
         font-weight: 300;
       }
@@ -43,72 +40,7 @@
       }
       
       .content {
-        padding: 24px;
-      }
-      
-      .status-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
         padding: 16px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        margin-bottom: 24px;
-        border-left: 4px solid #049fd9;
-      }
-      
-      .status-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      
-      .status-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #dc3545;
-      }
-      
-      .status-indicator.connected {
-        background: #28a745;
-        animation: pulse 2s infinite;
-      }
-      
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-      
-      .status-text {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      
-      .refresh-btn {
-        padding: 8px 16px;
-        background: #049fd9;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background 0.2s;
-      }
-      
-      .refresh-btn:hover {
-        background: #037ba8;
-      }
-      
-      .refresh-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      
-      .actions-bar {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
       }
       
       .btn {
@@ -255,8 +187,39 @@
       
       .form-group textarea {
         resize: vertical;
-        min-height: 100px;
-        font-family: 'Courier New', monospace;
+        min-height: 320px;
+        font-family: 'Menlo', 'SFMono-Regular', 'Courier New', monospace;
+        font-size: 15px;
+        line-height: 1.5;
+        letter-spacing: 0.2px;
+      }
+
+      .inline-textarea {
+        resize: vertical;
+        min-height: 320px;
+        font-family: 'Menlo', 'SFMono-Regular', 'Courier New', monospace;
+        font-size: 15px;
+        line-height: 1.5;
+        letter-spacing: 0.2px;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        box-sizing: border-box;
+        color: #111827;
+      }
+
+      .inline-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+
+      .icon-btn.save {
+        color: #16a34a;
+      }
+      .icon-btn.save:hover {
+        color: #0f9a3c;
       }
       
       .form-actions {
@@ -276,8 +239,8 @@
       
       .variables-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 16px;
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
       
       .variable-card {
@@ -340,13 +303,16 @@
       
       .variable-value {
         background: #f8f9fa;
-        padding: 10px;
+        padding: 12px;
         border-radius: 4px;
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        color: #495057;
+        font-family: 'Menlo', 'SFMono-Regular', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        letter-spacing: 0.2px;
+        color: #374151;
         word-break: break-all;
-        max-height: 150px;
+        min-height: 240px;
+        max-height: 320px;
         overflow-y: auto;
         border: 1px solid #e9ecef;
       }
@@ -386,39 +352,14 @@
     </style>
     
     <div class="container">
-      <div class="header">
-        <h1>Advisory Message</h1>
-        <p>Change the Adivsory Message</p>
-      </div>
-      
       <div class="content">
-        <div class="status-bar">
-          <div class="status-info">
-            <div class="status-indicator" id="statusIndicator"></div>
-            <span class="status-text" id="statusText">Connecting...</span>
-          </div>
-          <button class="refresh-btn" id="refreshBtn">
-            ↻ Refresh
-          </button>
-        </div>
-        
-        <div id="messageContainer"></div>
-        
-        <div class="actions-bar">
-          <button class="btn btn-primary" id="loadBtn">Load Variables</button>
-          <button class="btn btn-success" id="addBtn">+ Add New Variable</button>
-        </div>
-        
         <div class="editor-panel" id="editorPanel">
           <div class="editor-header">
-            <h3 id="editorTitle">Add New Variable</h3>
+            <h3 id="editorTitle"></h3>
             <button class="close-btn" id="closeEditor">×</button>
           </div>
           
-          <div class="form-group">
-            <label for="varName">Variable Name</label>
-            <input type="text" id="varName" placeholder="e.g., BUSINESS_HOURS">
-          </div>
+          <input type="hidden" id="varName">
           
           <div class="form-group">
             <label for="varValue">Variable Value</label>
@@ -432,6 +373,7 @@
         </div>
         
         <div id="variablesContainer"></div>
+        <div id="messageContainer" style="margin-top:12px;"></div>
       </div>
     </div>
   `;
@@ -450,6 +392,7 @@
       this.variables = [];
       this.isEditing = false;
       this.editingVariable = null;
+      this.editingVariableName = null;
     }
     
     static get observedAttributes() {
@@ -478,24 +421,22 @@
     }
     
     setupEventListeners() {
-      this.shadowRoot.getElementById('refreshBtn').addEventListener('click', () => this.loadVariables());
-      this.shadowRoot.getElementById('loadBtn').addEventListener('click', () => this.loadVariables());
-      this.shadowRoot.getElementById('addBtn').addEventListener('click', () => this.showEditor());
-      this.shadowRoot.getElementById('closeEditor').addEventListener('click', () => this.hideEditor());
-      this.shadowRoot.getElementById('cancelBtn').addEventListener('click', () => this.hideEditor());
-      this.shadowRoot.getElementById('saveBtn').addEventListener('click', () => this.saveVariable());
+      // Inline editing; editor panel is unused but kept for compatibility.
     }
     
     updateStatus(connected) {
       const indicator = this.shadowRoot.getElementById('statusIndicator');
       const text = this.shadowRoot.getElementById('statusText');
       
-      if (connected) {
-        indicator.classList.add('connected');
-        text.textContent = `Connected (${this.orgId})`;
-      } else {
-        indicator.classList.remove('connected');
-        text.textContent = 'Not connected';
+      // UI element removed; keep for compatibility.
+      if (indicator && text) {
+        if (connected) {
+          indicator.classList.add('connected');
+          text.textContent = `Connected (${this.orgId})`;
+        } else {
+          indicator.classList.remove('connected');
+          text.textContent = 'Not connected';
+        }
       }
     }
     
@@ -512,18 +453,13 @@
     showEditor(variable = null) {
       this.isEditing = !!variable;
       this.editingVariable = variable;
-      
-      const panel = this.shadowRoot.getElementById('editorPanel');
-      const title = this.shadowRoot.getElementById('editorTitle');
-      const nameInput = this.shadowRoot.getElementById('varName');
-      const valueInput = this.shadowRoot.getElementById('varValue');
-      
-      title.textContent = variable ? 'Edit Variable' : 'Add New Variable';
-      nameInput.value = variable ? (variable.name || variable.variableName || '') : '';
-      valueInput.value = variable ? (variable.value || variable.variableValue || variable.defaultValue || '') : '';
-      nameInput.disabled = !!variable;
-      
-      panel.classList.add('active');
+
+      // Switch to inline edit mode by tracking which variable is being edited.
+      const targetName = variable
+        ? (variable.name || variable.variableName)
+        : (this.variables[0] && (this.variables[0].name || this.variables[0].variableName));
+      this.editingVariableName = targetName || null;
+      this.renderVariables();
     }
 
     prefillEditorFromVariable(variable) {
@@ -635,7 +571,7 @@
       const container = this.shadowRoot.getElementById('variablesContainer');
       
       if (this.variables.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No variables found. Click "Add New Variable" to create one.</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No variables found.</p></div>';
         return;
       }
       
@@ -648,43 +584,52 @@
       // Attach event listeners
       container.querySelectorAll('.edit-var').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const varName = e.target.dataset.name;
+          const varName = e.currentTarget.dataset.name;
           const variable = this.variables.find(v => (v.name || v.variableName) === varName);
           this.showEditor(variable);
         });
       });
-      
-      container.querySelectorAll('.delete-var').forEach(btn => {
+      container.querySelectorAll('.save-var').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const varName = e.target.dataset.name;
-          this.deleteVariable(varName);
+          const varName = e.currentTarget.dataset.name;
+          const card = e.currentTarget.closest('.variable-card');
+          const textarea = card ? card.querySelector('.edit-value') : null;
+          const newVal = textarea ? textarea.value : '';
+          this.saveVariableInline(varName, newVal);
         });
       });
+    
     }
     
     createVariableCard(variable) {
-      const name = variable.name || variable.variableName || 'Unnamed';
+      const name = 'Advisory Message';
       const value = (variable.value || variable.variableValue || variable.defaultValue || '');
+      const isEditing = this.editingVariableName === (variable.name || variable.variableName);
       
       return `
         <div class="variable-card">
           <div class="variable-header">
             <div class="variable-name">${this.escapeHtml(name)}</div>
-            <div class="variable-actions">
-              <button class="icon-btn edit edit-var" data-name="${this.escapeHtml(name)}" title="Edit">✏️</button>
-              <button class="icon-btn delete delete-var" data-name="${this.escapeHtml(name)}" title="Delete">🗑️</button>
-            </div>
+            ${isEditing
+              ? `<button class="icon-btn save save-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" title="Save" style="padding:4px 6px;">💾</button>`
+              : `<button class="icon-btn edit edit-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" title="Edit" style="padding:4px 6px;">✏️</button>`}
           </div>
-          <div class="variable-value">${this.escapeHtml(value)}</div>
+          ${isEditing
+            ? `<textarea class="inline-textarea edit-value">${this.escapeHtml(value)}</textarea>`
+            : `<div class="variable-value">${this.escapeHtml(value)}</div>`}
         </div>
       `;
     }
-    
-    async saveVariable() {
-      const name = this.shadowRoot.getElementById('varName').value.trim();
-      const value = this.shadowRoot.getElementById('varValue').value;
+
+    async saveVariableInline(name, value) {
+      const finalName = name && name.trim()
+        ? name.trim()
+        : (this.variables[0] && (this.variables[0].name || this.variables[0].variableName)) || '';
+      const finalValue = value !== undefined
+        ? value
+        : (this.variables[0] && (this.variables[0].value || this.variables[0].variableValue || this.variables[0].defaultValue)) || '';
       
-      if (!name) {
+      if (!finalName) {
         this.showMessage('Variable name is required', 'error');
         return;
       }
@@ -697,8 +642,8 @@
           const source = (this.variables && this.variables[0] && this.variables[0].raw) || {};
           const payload = Object.assign({}, source, {
             id: this.variableId,
-            name: source.name || name,
-            defaultValue: value,
+            name: source.name || finalName,
+            defaultValue: finalValue,
           });
 
           const res = await fetch(`${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
@@ -717,8 +662,9 @@
 
           // Refresh the current variable
           await this.loadVariableById();
-          this.showMessage(`Variable "${name}" saved successfully`, 'success');
-          this.hideEditor();
+          this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
+          this.editingVariableName = null;
+          this.renderVariables();
           return;
         }
 
@@ -731,8 +677,8 @@
           },
           body: JSON.stringify({
             orgId: this.orgId,
-            variableName: name,
-            variableValue: value
+            variableName: finalName,
+            variableValue: finalValue
           })
         });
         
@@ -740,38 +686,19 @@
           throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
         
-        this.showMessage(`Variable "${name}" saved successfully`, 'success');
-        this.hideEditor();
+        this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
+        this.editingVariableName = null;
+        this.renderVariables();
         this.loadVariables();
       } catch (error) {
         this.showMessage(`Error saving variable: ${error.message}`, 'error');
       }
     }
-    
-    async deleteVariable(name) {
-      if (!confirm(`Are you sure you want to delete the variable "${name}"?`)) {
-        return;
-      }
-      
-      try {
-        const apiUrl = this.getApiUrl();
-        const response = await fetch(`${apiUrl}/v1/globalVariables/${encodeURIComponent(name)}?orgId=${this.orgId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
-        
-        this.showMessage(`Variable "${name}" deleted successfully`, 'success');
-        this.loadVariables();
-      } catch (error) {
-        this.showMessage(`Error deleting variable: ${error.message}`, 'error');
-      }
+
+    async saveVariable() {
+      const name = this.shadowRoot.getElementById('varName')?.value || '';
+      const value = this.shadowRoot.getElementById('varValue')?.value;
+      return this.saveVariableInline(name, value);
     }
     
     escapeHtml(text) {
