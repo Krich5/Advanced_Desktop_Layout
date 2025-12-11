@@ -2,6 +2,7 @@
  * Global Variable Manager Web Component for Webex Contact Center
  * Vanilla JavaScript - No compilation needed
  * Upload this file directly to GitHub Pages
+ * V3
  */
 
 (function() {
