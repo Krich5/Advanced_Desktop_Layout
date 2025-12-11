@@ -1,24 +1,3 @@
-/**
- * Global Variable Updater
- * Standalone widget for embedding in Webex CC Agent Desktop (custom IFrame tab).
- * Renders a small form to update a named global variable. Provide a handler
- * that performs the actual update (REST call or desktop API).
- *
- * Usage example inside an HTML gadget:
- * <script src="global-variable-updater.js"></script>
- * <script>
- *   VariableUpdater.render(document.getElementById('root'), {
- *     title: 'Desktop Global Variable',
- *     onUpdate: async ({ name, value }) => {
- *       // Replace with your real update implementation:
- *       window.parent.postMessage(
- *         { type: 'GLOBAL_VARIABLE_UPDATE', name, value },
- *         '*'
- *       );
- *     },
- *   });
- * </script>
- */
 (function () {
   const defaultOptions = {
     title: 'Global Variable',
