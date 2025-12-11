@@ -389,8 +389,8 @@
     
     <div class="container">
       <div class="header">
-        <h1>Global Variables Manager</h1>
-        <p>Manage Webex Contact Center global variables</p>
+        <h1>Advisory Message</h1>
+        <p>Change the Adivsory Message</p>
       </div>
       
       <div class="content">
