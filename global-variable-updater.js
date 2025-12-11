@@ -1,7 +1,5 @@
 /**
- * Global Variable Manager Web Component for Webex Contact Center
- * Vanilla JavaScript - No compilation needed
- * Upload this file directly to GitHub Pages
+ * V6
  */
 
 (function() {
@@ -447,19 +445,23 @@
       this.token = '';
       this.orgId = '';
       this.dataCenter = '';
+      this.baseUrl = '';
+      this.variableId = '';
       this.variables = [];
       this.isEditing = false;
       this.editingVariable = null;
     }
     
     static get observedAttributes() {
-      return ['token', 'org-id', 'data-center'];
+      return ['token', 'org-id', 'data-center', 'variable-id', 'base-url'];
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'token') this.token = newValue;
       if (name === 'org-id') this.orgId = newValue;
       if (name === 'data-center') this.dataCenter = newValue;
+      if (name === 'variable-id') this.variableId = newValue;
+      if (name === 'base-url') this.baseUrl = newValue;
       
       if (this.token && this.orgId) {
         this.updateStatus(true);
@@ -518,10 +520,19 @@
       
       title.textContent = variable ? 'Edit Variable' : 'Add New Variable';
       nameInput.value = variable ? (variable.name || variable.variableName || '') : '';
-      valueInput.value = variable ? (variable.value || variable.variableValue || '') : '';
+      valueInput.value = variable ? (variable.value || variable.variableValue || variable.defaultValue || '') : '';
       nameInput.disabled = !!variable;
       
       panel.classList.add('active');
+    }
+
+    prefillEditorFromVariable(variable) {
+      const nameInput = this.shadowRoot.getElementById('varName');
+      const valueInput = this.shadowRoot.getElementById('varValue');
+      if (!nameInput || !valueInput || !variable) return;
+      nameInput.value = variable.name || variable.variableName || '';
+      valueInput.value = variable.variableValue || variable.defaultValue || variable.value || '';
+      nameInput.disabled = true;
     }
     
     hideEditor() {
@@ -532,6 +543,7 @@
     }
     
     getApiUrl() {
+      if (this.baseUrl) return this.baseUrl;
       const dcMap = {
         'us1': 'https://api.wxcc-us1.cisco.com',
         'eu1': 'https://api.wxcc-eu1.cisco.com',
@@ -553,6 +565,12 @@
       container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading variables...</div>';
       
       try {
+        // If a specific variable-id is provided, fetch just that variable.
+        if (this.variableId) {
+          await this.loadVariableById(container);
+          return;
+        }
+
         const apiUrl = this.getApiUrl();
         const response = await fetch(`${apiUrl}/v1/globalVariables?orgId=${this.orgId}`, {
           method: 'GET',
@@ -573,6 +591,43 @@
       } catch (error) {
         this.showMessage(`Error loading variables: ${error.message}`, 'error');
         container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variables</p></div>`;
+      }
+    }
+
+    async loadVariableById(containerEl) {
+      try {
+        const apiUrl = this.getApiUrl();
+        const response = await fetch(
+          `${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const normalized = {
+          id: data.id,
+          name: data.name,
+          variableValue: data.defaultValue,
+          raw: data
+        };
+        this.variables = [normalized];
+        this.prefillEditorFromVariable(normalized);
+        this.renderVariables();
+        this.showMessage(`Loaded variable "${data.name}"`, 'success');
+      } catch (error) {
+        this.showMessage(`Error loading variable: ${error.message}`, 'error');
+        if (containerEl) {
+          containerEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variable</p></div>`;
+        }
       }
     }
     
@@ -609,7 +664,7 @@
     
     createVariableCard(variable) {
       const name = variable.name || variable.variableName || 'Unnamed';
-      const value = variable.value || variable.variableValue || '';
+      const value = (variable.value || variable.variableValue || variable.defaultValue || '');
       
       return `
         <div class="variable-card">
