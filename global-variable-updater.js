@@ -28,8 +28,11 @@
     onUpdate: null,
   };
 
-  function createStyles() {
-    const style = document.createElement('style');
+  function createStyles(target) {
+    const style = (target && target.ownerDocument
+      ? target.ownerDocument
+      : document
+    ).createElement('style');
     style.textContent = `
       .vu-card {
         font-family: "Helvetica Neue", Arial, sans-serif;
@@ -111,21 +114,22 @@
       .vu-status--error { color: #ffb4c0; }
       .vu-status--success { color: #a7f3d0; }
     `;
-    document.head.appendChild(style);
+    const where = target && target.appendChild ? target : document.head;
+    where.appendChild(style);
   }
 
-  function createDom(options) {
-    const card = document.createElement('div');
+  function createDom(options, doc) {
+    const card = doc.createElement('div');
     card.className = 'vu-card';
 
-    const header = document.createElement('div');
+    const header = doc.createElement('div');
     header.className = 'vu-header';
 
-    const title = document.createElement('div');
+    const title = doc.createElement('div');
     title.className = 'vu-title';
     title.textContent = options.title;
 
-    const chip = document.createElement('div');
+    const chip = doc.createElement('div');
     chip.className = 'vu-chip';
     chip.textContent = 'Global';
 
@@ -133,34 +137,36 @@
     header.appendChild(chip);
     card.appendChild(header);
 
-    const nameField = document.createElement('div');
+    const nameField = doc.createElement('div');
     nameField.className = 'vu-field';
-    const nameLabel = document.createElement('label');
+    const nameLabel = doc.createElement('label');
     nameLabel.className = 'vu-label';
     nameLabel.textContent = options.nameLabel;
-    const nameInput = document.createElement('input');
+    const nameInput = doc.createElement('input');
     nameInput.className = 'vu-input';
     nameInput.placeholder = 'ex: customerTier';
+    if (options.defaultName) nameInput.value = options.defaultName;
     nameField.appendChild(nameLabel);
     nameField.appendChild(nameInput);
 
-    const valueField = document.createElement('div');
+    const valueField = doc.createElement('div');
     valueField.className = 'vu-field';
-    const valueLabel = document.createElement('label');
+    const valueLabel = doc.createElement('label');
     valueLabel.className = 'vu-label';
     valueLabel.textContent = options.valueLabel;
-    const valueInput = document.createElement('input');
+    const valueInput = doc.createElement('input');
     valueInput.className = 'vu-input';
     valueInput.placeholder = 'ex: Gold';
+    if (options.defaultValue) valueInput.value = options.defaultValue;
     valueField.appendChild(valueLabel);
     valueField.appendChild(valueInput);
 
-    const actions = document.createElement('div');
+    const actions = doc.createElement('div');
     actions.className = 'vu-actions';
-    const button = document.createElement('button');
+    const button = doc.createElement('button');
     button.className = 'vu-button';
     button.textContent = options.buttonLabel;
-    const status = document.createElement('div');
+    const status = doc.createElement('div');
     status.className = 'vu-status';
     actions.appendChild(button);
     actions.appendChild(status);
@@ -214,8 +220,9 @@
     if (!mount) throw new Error('Target mount element is required.');
     const opts = Object.assign({}, defaultOptions, userOptions || {});
 
-    createStyles();
-    const state = createDom(opts);
+    const targetDoc = mount.ownerDocument || document;
+    createStyles(mount instanceof ShadowRoot ? mount : targetDoc.head);
+    const state = createDom(opts, targetDoc);
     mount.innerHTML = '';
     mount.appendChild(state.card);
 
@@ -225,5 +232,44 @@
     });
   }
 
+  class GlobalVariableUpdater extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+    }
+
+    static get observedAttributes() {
+      return ['title', 'button-label', 'name-label', 'value-label', 'name', 'value'];
+    }
+
+    connectedCallback() {
+      this._renderFromAttributes();
+    }
+
+    attributeChangedCallback() {
+      if (this.isConnected) {
+        this._renderFromAttributes();
+      }
+    }
+
+    _renderFromAttributes() {
+      const opts = {
+        title: this.getAttribute('title') || defaultOptions.title,
+        buttonLabel: this.getAttribute('button-label') || defaultOptions.buttonLabel,
+        nameLabel: this.getAttribute('name-label') || defaultOptions.nameLabel,
+        valueLabel: this.getAttribute('value-label') || defaultOptions.valueLabel,
+        defaultName: this.getAttribute('name') || '',
+        defaultValue: this.getAttribute('value') || '',
+        onUpdate: this.onUpdate || null,
+      };
+      render(this.shadowRoot, opts);
+    }
+  }
+
+  if (!customElements.get('global-variable-updater')) {
+    customElements.define('global-variable-updater', GlobalVariableUpdater);
+  }
+
+  // Expose imperative render for non-custom-element usage.
   window.VariableUpdater = { render };
 })();
