@@ -1,5 +1,6 @@
 /**
- * V5
+ * Message Updater for Webex Contact Center
+ * Simple component for supervisors to update messages
  */
 
 (function() {
