@@ -1,15 +1,7 @@
 /**
  * Global Variable Manager Web Component for Webex Contact Center
- * Usage in Desktop Layout:
- * {
- *   "comp": "global-variable-manager",
- *   "script": "https://your-server.com/global-variable-manager.js",
- *   "attributes": {
- *     "token": "$STORE.auth.accessToken",
- *     "org-id": "$STORE.agent.orgId",
- *     "data-center": "$STORE.app.datacenter"
- *   }
- * }
+ * Vanilla JavaScript - No compilation needed
+ * Upload this file directly to GitHub Pages
  */
 
 (function() {
@@ -78,11 +70,11 @@
         height: 12px;
         border-radius: 50%;
         background: #dc3545;
-        animation: pulse 2s infinite;
       }
       
       .status-indicator.connected {
         background: #28a745;
+        animation: pulse 2s infinite;
       }
       
       @keyframes pulse {
@@ -253,6 +245,7 @@
         font-size: 14px;
         font-family: inherit;
         transition: border-color 0.2s;
+        box-sizing: border-box;
       }
       
       .form-group input:focus,
@@ -331,6 +324,7 @@
         border-radius: 4px;
         color: #6c757d;
         transition: all 0.2s;
+        font-size: 16px;
       }
       
       .icon-btn:hover {
@@ -506,7 +500,7 @@
     showMessage(message, type = 'info') {
       const container = this.shadowRoot.getElementById('messageContainer');
       const messageDiv = document.createElement('div');
-      messageDiv.className = \`message \${type}\`;
+      messageDiv.className = `message ${type}`;
       messageDiv.textContent = message;
       container.appendChild(messageDiv);
       
@@ -538,7 +532,6 @@
     }
     
     getApiUrl() {
-      // Map datacenter to API endpoint
       const dcMap = {
         'us1': 'https://api.wxcc-us1.cisco.com',
         'eu1': 'https://api.wxcc-eu1.cisco.com',
@@ -561,25 +554,25 @@
       
       try {
         const apiUrl = this.getApiUrl();
-        const response = await fetch(\`\${apiUrl}/v1/globalVariables?orgId=\${this.orgId}\`, {
+        const response = await fetch(`${apiUrl}/v1/globalVariables?orgId=${this.orgId}`, {
           method: 'GET',
           headers: {
-            'Authorization': \`Bearer \${this.token}\`,
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
         
         if (!response.ok) {
-          throw new Error(\`API Error: \${response.status} \${response.statusText}\`);
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
         this.variables = data.data || data.globalVariables || [];
         this.renderVariables();
-        this.showMessage(\`Loaded \${this.variables.length} variables\`, 'success');
+        this.showMessage(`Loaded ${this.variables.length} variables`, 'success');
       } catch (error) {
-        this.showMessage(\`Error loading variables: \${error.message}\`, 'error');
-        container.innerHTML = \`<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variables</p></div>\`;
+        this.showMessage(`Error loading variables: ${error.message}`, 'error');
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variables</p></div>`;
       }
     }
     
@@ -591,11 +584,11 @@
         return;
       }
       
-      container.innerHTML = \`
+      container.innerHTML = `
         <div class="variables-grid">
-          \${this.variables.map(v => this.createVariableCard(v)).join('')}
+          ${this.variables.map(v => this.createVariableCard(v)).join('')}
         </div>
-      \`;
+      `;
       
       // Attach event listeners
       container.querySelectorAll('.edit-var').forEach(btn => {
@@ -618,18 +611,18 @@
       const name = variable.name || variable.variableName || 'Unnamed';
       const value = variable.value || variable.variableValue || '';
       
-      return \`
+      return `
         <div class="variable-card">
           <div class="variable-header">
-            <div class="variable-name">\${this.escapeHtml(name)}</div>
+            <div class="variable-name">${this.escapeHtml(name)}</div>
             <div class="variable-actions">
-              <button class="icon-btn edit edit-var" data-name="\${this.escapeHtml(name)}" title="Edit">✏️</button>
-              <button class="icon-btn delete delete-var" data-name="\${this.escapeHtml(name)}" title="Delete">🗑️</button>
+              <button class="icon-btn edit edit-var" data-name="${this.escapeHtml(name)}" title="Edit">✏️</button>
+              <button class="icon-btn delete delete-var" data-name="${this.escapeHtml(name)}" title="Delete">🗑️</button>
             </div>
           </div>
-          <div class="variable-value">\${this.escapeHtml(value)}</div>
+          <div class="variable-value">${this.escapeHtml(value)}</div>
         </div>
-      \`;
+      `;
     }
     
     async saveVariable() {
@@ -643,10 +636,10 @@
       
       try {
         const apiUrl = this.getApiUrl();
-        const response = await fetch(\`\${apiUrl}/v1/globalVariables\`, {
+        const response = await fetch(`${apiUrl}/v1/globalVariables`, {
           method: 'PUT',
           headers: {
-            'Authorization': \`Bearer \${this.token}\`,
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -657,40 +650,40 @@
         });
         
         if (!response.ok) {
-          throw new Error(\`API Error: \${response.status} \${response.statusText}\`);
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
         
-        this.showMessage(\`Variable "\${name}" saved successfully\`, 'success');
+        this.showMessage(`Variable "${name}" saved successfully`, 'success');
         this.hideEditor();
         this.loadVariables();
       } catch (error) {
-        this.showMessage(\`Error saving variable: \${error.message}\`, 'error');
+        this.showMessage(`Error saving variable: ${error.message}`, 'error');
       }
     }
     
     async deleteVariable(name) {
-      if (!confirm(\`Are you sure you want to delete the variable "\${name}"?\`)) {
+      if (!confirm(`Are you sure you want to delete the variable "${name}"?`)) {
         return;
       }
       
       try {
         const apiUrl = this.getApiUrl();
-        const response = await fetch(\`\${apiUrl}/v1/globalVariables/\${encodeURIComponent(name)}?orgId=\${this.orgId}\`, {
+        const response = await fetch(`${apiUrl}/v1/globalVariables/${encodeURIComponent(name)}?orgId=${this.orgId}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': \`Bearer \${this.token}\`,
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
         
         if (!response.ok) {
-          throw new Error(\`API Error: \${response.status} \${response.statusText}\`);
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
         
-        this.showMessage(\`Variable "\${name}" deleted successfully\`, 'success');
+        this.showMessage(`Variable "${name}" deleted successfully`, 'success');
         this.loadVariables();
       } catch (error) {
-        this.showMessage(\`Error deleting variable: \${error.message}\`, 'error');
+        this.showMessage(`Error deleting variable: ${error.message}`, 'error');
       }
     }
     
