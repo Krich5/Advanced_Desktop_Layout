@@ -691,6 +691,38 @@
       
       try {
         const apiUrl = this.getApiUrl();
+
+        // If a specific variableId was provided, use the CAD variable endpoint.
+        if (this.variableId) {
+          const source = (this.variables && this.variables[0] && this.variables[0].raw) || {};
+          const payload = Object.assign({}, source, {
+            id: this.variableId,
+            name: source.name || name,
+            defaultValue: value,
+          });
+
+          const res = await fetch(`${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${this.token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            throw new Error(`API Error: ${res.status} ${res.statusText}`);
+          }
+
+          // Refresh the current variable
+          await this.loadVariableById();
+          this.showMessage(`Variable "${name}" saved successfully`, 'success');
+          this.hideEditor();
+          return;
+        }
+
+        // Legacy/globalVariables endpoint (name-based) when no variableId is provided.
         const response = await fetch(`${apiUrl}/v1/globalVariables`, {
           method: 'PUT',
           headers: {
