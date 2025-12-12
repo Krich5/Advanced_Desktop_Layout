@@ -16,7 +16,6 @@ All attributes are required unless noted.
 - `override-id`: Override Hours ID (for the overrides API).
 - `override-message-var-id`: CAD variable ID for the override message (string).
 - `base-url` (optional): Override the API base if needed (defaults by data center).
-- `theme` (optional): `light` or `dark`. Defaults to light.
 
 ## Sample layout snippet (actions widget)
 ```json
@@ -31,8 +30,7 @@ All attributes are required unless noted.
       "globvar-advisory-message-id": "<advisory-var-id>",
       "globvar-ccb-id": "<ccb-var-id>",
       "override-id": "<override-id>",
-      "override-message-var-id": "<override-message-var-id>",
-      "theme": "light"
+      "override-message-var-id": "<override-message-var-id>"
     }
   }
 }
