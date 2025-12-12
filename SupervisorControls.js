@@ -1,5 +1,5 @@
 /**
- * Changed Name
+ * Removed update banner
  */
 
 (function() {
@@ -472,9 +472,7 @@
       if (name === 'variable-id-2') this.variableId2 = newValue;
       if (name === 'base-url') this.baseUrl = newValue;
       
-      if (this.token && this.orgId) {
-        this.updateStatus(true);
-      }
+      // no-op status; removed
     }
     
     connectedCallback() {
@@ -490,21 +488,7 @@
       // Inline editing; editor panel is unused but kept for compatibility.
     }
     
-    updateStatus(connected) {
-      const indicator = this.shadowRoot.getElementById('statusIndicator');
-      const text = this.shadowRoot.getElementById('statusText');
-      
-      // UI element removed; keep for compatibility.
-      if (indicator && text) {
-        if (connected) {
-          indicator.classList.add('connected');
-          text.textContent = `Connected (${this.orgId})`;
-        } else {
-          indicator.classList.remove('connected');
-          text.textContent = 'Not connected';
-        }
-      }
-    }
+    updateStatus() {}
     
     showMessage(message, type = 'info') {
       const container = this.shadowRoot.getElementById('messageContainer');
