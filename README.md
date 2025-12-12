@@ -45,6 +45,6 @@ All attributes are required unless noted.
 Token must have rights to read/update the referenced resources.
 
 ## Hosting
-- Host `SupervisorControls.js` on GitHub Pages or any static file host, then reference its URL in the layout.
+- Host `SupervisorControls.js` on GitHub Pages or any static file host, then reference its URL in the Desktop Layout.
 
 
