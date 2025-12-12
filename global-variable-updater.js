@@ -1,5 +1,5 @@
 /**
- * V1
+ * Reset
  */
 
 (function() {
@@ -398,42 +398,6 @@
         padding: 40px;
         color: #6c757d;
       }
-
-      .ticker {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #0b1f38;
-        color: #e2e8f0;
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.08);
-      }
-      .ticker-label {
-        font-weight: 700;
-        font-size: 12px;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
-        color: #7dd3fc;
-        white-space: nowrap;
-      }
-      .ticker-track {
-        position: relative;
-        overflow: hidden;
-        flex: 1;
-        height: 20px;
-      }
-      .ticker-track span {
-        position: absolute;
-        white-space: nowrap;
-        animation: tickerScroll 24s linear infinite;
-      }
-      @keyframes tickerScroll {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-      }
       
       .spinner {
         border: 3px solid #f3f3f3;
@@ -453,7 +417,6 @@
     
     <div class="container">
       <div class="content">
-        <div id="tickerContainer"></div>
         <div class="editor-panel" id="editorPanel">
           <div class="editor-header">
             <h3 id="editorTitle"></h3>
@@ -491,10 +454,6 @@
       this.baseUrl = '';
       this.variableId = '';
       this.variableId2 = '';
-      this.variableId3 = '';
-      this.feedUrl = '';
-      this.feedLabel = 'Advisory Feed';
-      this.rssItems = [];
       this.variables = [];
       this.isEditing = false;
       this.editingVariable = null;
@@ -502,17 +461,7 @@
     }
     
     static get observedAttributes() {
-      return [
-        'token',
-        'org-id',
-        'data-center',
-        'variable-id',
-        'variable-id-2',
-        'variable-id-3',
-        'base-url',
-        'rss-feed-url',
-        'rss-feed-label'
-      ];
+      return ['token', 'org-id', 'data-center', 'variable-id', 'variable-id-2', 'base-url'];
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
@@ -521,10 +470,7 @@
       if (name === 'data-center') this.dataCenter = newValue;
       if (name === 'variable-id') this.variableId = newValue;
       if (name === 'variable-id-2') this.variableId2 = newValue;
-      if (name === 'variable-id-3') this.variableId3 = newValue;
       if (name === 'base-url') this.baseUrl = newValue;
-      if (name === 'rss-feed-url') this.feedUrl = newValue;
-      if (name === 'rss-feed-label') this.feedLabel = newValue;
       
       if (this.token && this.orgId) {
         this.updateStatus(true);
@@ -537,9 +483,6 @@
       // Auto-load if we have credentials
       if (this.token && this.orgId) {
         setTimeout(() => this.loadVariables(), 500);
-      }
-      if (this.feedUrl) {
-        setTimeout(() => this.loadTicker(), 300);
       }
     }
     
@@ -624,7 +567,7 @@
         const container = this.shadowRoot.getElementById('variablesContainer');
         container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading variables...</div>';
 
-        const ids = [this.variableId, this.variableId2, this.variableId3].filter(Boolean);
+        const ids = [this.variableId, this.variableId2].filter(Boolean);
         if (ids.length > 0) {
           const results = [];
           for (const id of ids) {
@@ -652,7 +595,6 @@
         }
         this.renderVariables();
         this.showMessage(`Loaded ${this.variables.length} variables`, 'success');
-        this.renderTicker();
       } catch (error) {
         this.showMessage(`Error loading variables: ${error.message}`, 'error');
         const container = this.shadowRoot.getElementById('variablesContainer');
@@ -694,54 +636,6 @@
         }
         return null;
       }
-    }
-
-    async loadTicker() {
-      if (!this.feedUrl) return;
-      try {
-        const res = await fetch(this.feedUrl, { headers: { Accept: 'application/rss+xml,text/xml' } });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/xml');
-        const items = Array.from(doc.querySelectorAll('item > title')).slice(0, 5).map(n => n.textContent || '').filter(Boolean);
-        this.rssItems = items;
-        this.renderTicker();
-      } catch (err) {
-        this.rssItems = [];
-        this.renderTicker(true);
-      }
-    }
-
-    renderTicker(showError = false) {
-      const el = this.shadowRoot.getElementById('tickerContainer');
-      if (!el) return;
-      const label = this.feedLabel || 'Feed';
-      if (showError && !this.getVariableTickerText()) {
-        el.innerHTML = `<div class="ticker"><span class="ticker-label">${this.escapeHtml(label)}</span><div class="ticker-track"><span>Feed unavailable</span></div></div>`;
-        return;
-      }
-      const text = this.rssItems.length
-        ? this.rssItems.join('  •  ')
-        : this.getVariableTickerText();
-      if (!text) {
-        el.innerHTML = '';
-        return;
-      }
-      el.innerHTML = `
-        <div class="ticker">
-          <span class="ticker-label">${this.escapeHtml(label)}</span>
-          <div class="ticker-track"><span>${this.escapeHtml(text)}</span></div>
-        </div>
-      `;
-    }
-
-    getVariableTickerText() {
-      const preferred = this.variables.find(v => this.variableId3 && v.id === this.variableId3);
-      const primary = preferred || this.variables.find(v => (v.variableType || '').toLowerCase() !== 'boolean');
-      if (!primary) return '';
-      const val = primary.variableValue || primary.value || primary.defaultValue || '';
-      return typeof val === 'string' ? val : String(val);
     }
     
     renderVariables() {
@@ -790,13 +684,15 @@
     
     createVariableCard(variable) {
       const isBoolean = (variable.variableType || '').toLowerCase() === 'boolean';
-      let name = variable.name || variable.variableName || (isBoolean ? 'CCB Enabled' : 'Advisory Message');
-      if (variable.id) {
-        if (this.variableId && variable.id === this.variableId) name = 'Advisory Message';
-        else if (this.variableId2 && variable.id === this.variableId2) name = 'CCB Enabled';
-        else if (this.variableId3 && variable.id === this.variableId3) name = 'Banner Message';
-      } else if (!isBoolean) {
-        name = 'Banner Message';
+      let name = variable.name || variable.variableName || (isBoolean ? 'Toggle' : 'Advisory Message');
+      if (variable.id && this.variableId2 && variable.id === this.variableId2) {
+        name = 'CCB Enabled';
+      } else if (variable.id && this.variableId && variable.id === this.variableId) {
+        name = 'Advisory Message';
+      } else if (isBoolean) {
+        name = 'CCB Enabled';
+      } else {
+        name = 'Advisory Message';
       }
       const value = (variable.value || variable.variableValue || variable.defaultValue || '');
       const isEditing = !isBoolean && this.editingVariableName === (variable.name || variable.variableName);
@@ -918,7 +814,6 @@
           this.variables.push(updated);
         }
         this.renderVariables();
-        this.renderTicker();
       } catch (error) {
         this.showMessage(`Error saving variable: ${error.message}`, 'error');
       }
