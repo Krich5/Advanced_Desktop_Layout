@@ -1,5 +1,5 @@
 /**
- * Removed update banner
+ * Changed labels on variables
  */
 
 (function() {
@@ -461,15 +461,15 @@
     }
     
     static get observedAttributes() {
-      return ['token', 'org-id', 'data-center', 'variable-id', 'variable-id-2', 'base-url'];
+      return ['token', 'org-id', 'data-center', 'globvar-advisory-message-id', 'globvar-ccb-id', 'base-url'];
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'token') this.token = newValue;
       if (name === 'org-id') this.orgId = newValue;
       if (name === 'data-center') this.dataCenter = newValue;
-      if (name === 'variable-id') this.variableId = newValue;
-      if (name === 'variable-id-2') this.variableId2 = newValue;
+      if (name === 'globvar-advisory-message-id') this.variableId = newValue;
+      if (name === 'globvar-ccb-id') this.variableId2 = newValue;
       if (name === 'base-url') this.baseUrl = newValue;
       
       // no-op status; removed
