@@ -241,6 +241,15 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 12px;
+        align-items: start;
+      }
+      .variables-grid.two-cols {
+        grid-template-columns: minmax(520px, 3fr) minmax(180px, 1fr);
+      }
+      @media (max-width: 900px) {
+        .variables-grid.two-cols {
+          grid-template-columns: 1fr;
+        }
       }
       
       .variable-card {
@@ -634,7 +643,7 @@
       }
       
       container.innerHTML = `
-        <div class="variables-grid">
+        <div class="variables-grid${this.variables.length > 1 ? ' two-cols' : ''}">
           ${this.variables.map(v => this.createVariableCard(v)).join('')}
         </div>
       `;
@@ -671,7 +680,16 @@
     
     createVariableCard(variable) {
       const isBoolean = (variable.variableType || '').toLowerCase() === 'boolean';
-      const name = variable.name || variable.variableName || (isBoolean ? 'Toggle' : 'Advisory Message');
+      let name = variable.name || variable.variableName || (isBoolean ? 'Toggle' : 'Advisory Message');
+      if (variable.id && this.variableId2 && variable.id === this.variableId2) {
+        name = 'CCB Enabled';
+      } else if (variable.id && this.variableId && variable.id === this.variableId) {
+        name = 'Advisory Message';
+      } else if (isBoolean) {
+        name = 'CCB Enabled';
+      } else {
+        name = 'Advisory Message';
+      }
       const value = (variable.value || variable.variableValue || variable.defaultValue || '');
       const isEditing = !isBoolean && this.editingVariableName === (variable.name || variable.variableName);
       
