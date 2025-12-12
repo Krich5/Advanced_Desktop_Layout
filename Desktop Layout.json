@@ -14,18 +14,7 @@
     },
     "area": {
       "advancedHeader": [
-        {
-          "comp": "rss-widget",
-          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
-          "attributes": {
-            "label": "Advisories",
-            "rss-feed-url": "",
-            "token": "$STORE.auth.accessToken",
-            "org-id": "$STORE.agent.orgId",
-            "data-center": "$STORE.app.datacenter",
-            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
-          }
-        },
+        
         {
           "comp": "digital-outbound",
           "script": "https://wc.imiengage.io/AIC/engage_aic.js",
@@ -237,18 +226,7 @@
     },
     "area": {
       "advancedHeader": [
-        {
-          "comp": "rss-widget",
-          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
-          "attributes": {
-            "label": "Advisories",
-            "rss-feed-url": "",
-            "token": "$STORE.auth.accessToken",
-            "org-id": "$STORE.agent.orgId",
-            "data-center": "$STORE.app.datacenter",
-            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
-          }
-        },
+        
         {
           "comp": "agentx-webex"
         },
@@ -730,18 +708,7 @@
     },
     "area": {
       "advancedHeader": [
-        {
-          "comp": "rss-widget",
-          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
-          "attributes": {
-            "label": "Advisories",
-            "rss-feed-url": "",
-            "token": "$STORE.auth.accessToken",
-            "org-id": "$STORE.agent.orgId",
-            "data-center": "$STORE.app.datacenter",
-            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
-          }
-        },
+        
         {
           "comp": "digital-outbound",
           "script": "https://wc.imiengage.io/AIC/engage_aic.js",
@@ -1236,26 +1203,26 @@
         },
         {
             "nav": {
-              "label": "Global Variables",
+              "label": "Supervisor Controls",
               "icon": "settings",
               "iconType": "momentum",
-              "navigateTo": "globalVars",
+              "navigateTo": "SupervisorControls",
               "align": "top"
             },
             "page": {
-              "id": "globalVars",
+              "id": "SupervisorControls",
               "widgets": {
                 "comp1": {
                   "comp": "global-variable-manager",
-                  "script": "http://localhost:8000/global-variable-updater.js",
+                  "script": "https://yourhost/SupervisorControls.js",
                   "attributes": {
                     "token": "$STORE.auth.accessToken",
-                    "org-id": "$STORE.agent.orgId",
-                    "data-center": "$STORE.app.datacenter",
-                    "variable-id": "ed98c1dc-00c0-4db0-9926-c88422405e0a",
-                    "variable-id-2": "122a83ab-8fcf-4031-b31e-1273f6f181cc",
-                    "rss-feed-url": "https://example.com/feed.xml",
-                    "rss-feed-label": "Advisories"
+                    "org-id": "$STORE.auth.orgId",
+                    "data-center": "us1",
+                    "globvar-advisory-message-id": "<advisory-var-id>",
+                    "globvar-ccb-id": "<ccb-var-id>",
+                    "override-id": "<override-id>",
+                    "override-message-var-id": "<override-message-var-id>"
                   }
                 }
               },
