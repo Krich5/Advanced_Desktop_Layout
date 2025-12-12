@@ -18,40 +18,86 @@
       this.feedUrl = '';
       this.label = 'Feed';
       this.items = [];
+      this.token = '';
+      this.orgId = '';
+      this.dataCenter = '';
+      this.baseUrl = '';
+      this.variableId = '';
+      this.textValue = '';
     }
 
     static get observedAttributes() {
-      return ['rss-feed-url', 'label'];
+      return ['rss-feed-url', 'label', 'token', 'org-id', 'data-center', 'base-url', 'variable-id'];
     }
 
     attributeChangedCallback(name, _old, value) {
       if (name === 'rss-feed-url') this.feedUrl = value || '';
       if (name === 'label') this.label = value || 'Feed';
+      if (name === 'token') this.token = value || '';
+      if (name === 'org-id') this.orgId = value || '';
+      if (name === 'data-center') this.dataCenter = value || '';
+      if (name === 'base-url') this.baseUrl = value || '';
+      if (name === 'variable-id') this.variableId = value || '';
       if (this.isConnected) this.loadFeed();
     }
 
     connectedCallback() {
       this.render();
-      if (this.feedUrl) this.loadFeed();
+      this.loadFeed();
     }
 
     async loadFeed() {
-      if (!this.feedUrl) {
-        this.render('Feed URL not set');
+      this.items = [];
+      this.textValue = '';
+
+      if (this.feedUrl) {
+        try {
+          const res = await fetch(this.feedUrl, { headers: { Accept: 'application/rss+xml,text/xml' } });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const text = await res.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(text, 'text/xml');
+          const titles = Array.from(doc.querySelectorAll('item > title')).map(n => n.textContent || '').filter(Boolean);
+          this.items = titles.slice(0, 5);
+          this.render();
+          return;
+        } catch (err) {
+          console.error('RSS load failed', err);
+        }
+      }
+
+      await this.loadVariableFallback();
+      this.render(this.items.length === 0 && !this.textValue ? 'Feed unavailable' : undefined);
+    }
+
+    apiBase() {
+      if (this.baseUrl) return this.baseUrl;
+      const dcMap = {
+        'us1': 'https://api.wxcc-us1.cisco.com',
+        'eu1': 'https://api.wxcc-eu1.cisco.com',
+        'eu2': 'https://api.wxcc-eu2.cisco.com',
+        'anz1': 'https://api.wxcc-anz1.cisco.com',
+        'ca1': 'https://api.wxcc-ca1.cisco.com'
+      };
+      return dcMap[this.dataCenter] || dcMap['us1'];
+    }
+
+    async loadVariableFallback() {
+      if (!this.variableId || !this.token || !this.orgId) {
         return;
       }
       try {
-        const res = await fetch(this.feedUrl, { headers: { Accept: 'application/rss+xml,text/xml' } });
+        const res = await fetch(`${this.apiBase()}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+            'Accept': 'application/json'
+          }
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/xml');
-        const titles = Array.from(doc.querySelectorAll('item > title')).map(n => n.textContent || '').filter(Boolean);
-        this.items = titles.slice(0, 5);
-        this.render();
+        const data = await res.json();
+        this.textValue = data.defaultValue || '';
       } catch (err) {
-        console.error('RSS load failed', err);
-        this.render('Feed unavailable');
+        console.error('Variable load failed', err);
       }
     }
 
@@ -97,7 +143,7 @@
           100% { transform: translateX(-100%); }
         }
       `;
-      const text = errorText || (this.items.length ? this.items.join(' • ') : '');
+      const text = errorText || (this.items.length ? this.items.join(' • ') : this.textValue || '');
       this.shadowRoot.innerHTML = `
         <style>${style}</style>
         <div class="ticker">
