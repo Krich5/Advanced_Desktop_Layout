@@ -15,6 +15,18 @@
     "area": {
       "advancedHeader": [
         {
+          "comp": "rss-widget",
+          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
+          "attributes": {
+            "label": "Advisories",
+            "rss-feed-url": "",
+            "token": "$STORE.auth.accessToken",
+            "org-id": "$STORE.agent.orgId",
+            "data-center": "$STORE.app.datacenter",
+            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
+          }
+        },
+        {
           "comp": "digital-outbound",
           "script": "https://wc.imiengage.io/AIC/engage_aic.js",
           "attributes": {
@@ -225,6 +237,18 @@
     },
     "area": {
       "advancedHeader": [
+        {
+          "comp": "rss-widget",
+          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
+          "attributes": {
+            "label": "Advisories",
+            "rss-feed-url": "",
+            "token": "$STORE.auth.accessToken",
+            "org-id": "$STORE.agent.orgId",
+            "data-center": "$STORE.app.datacenter",
+            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
+          }
+        },
         {
           "comp": "agentx-webex"
         },
@@ -706,6 +730,18 @@
     },
     "area": {
       "advancedHeader": [
+        {
+          "comp": "rss-widget",
+          "script": "https://krich5.github.io/Advanced_Desktop_Layout/rss-widget.js",
+          "attributes": {
+            "label": "Advisories",
+            "rss-feed-url": "",
+            "token": "$STORE.auth.accessToken",
+            "org-id": "$STORE.agent.orgId",
+            "data-center": "$STORE.app.datacenter",
+            "variable-id": "29b4ca85-db88-470c-bda0-f76f13b69860"
+          }
+        },
         {
           "comp": "digital-outbound",
           "script": "https://wc.imiengage.io/AIC/engage_aic.js",
@@ -1198,38 +1234,40 @@
             }
           }
         },
-{
-  "nav": {
-    "label": "Advisory Message",
-    "icon": "announcement",
-    "iconType": "momentum",
-    "navigateTo": "advisoryMessage",
-    "align": "top"
-  },
-  "page": {
-    "id": "advisoryMessage",
-    "widgets": {
-      "comp1": {
-        "comp": "message-updater",
-        "script": "https://krich5.github.io/Advanced_Desktop_Layout/global-variable-updater.js",
-        "attributes": {
-          "token": "$STORE.auth.accessToken",
-          "org-id": "$STORE.agent.orgId",
-          "data-center": "$STORE.app.datacenter",
-          "variable-id": "ed98c1dc-00c0-4db0-9926-c88422405e0a",
-          "title": "Advisory Message"
-        }
-      }
-    },
-    "layout": {
-      "areas": [["comp1"]],
-      "size": {
-        "cols": [1],
-        "rows": [1]
-      }
-    }
-  }
-},
+        {
+            "nav": {
+              "label": "Global Variables",
+              "icon": "settings",
+              "iconType": "momentum",
+              "navigateTo": "globalVars",
+              "align": "top"
+            },
+            "page": {
+              "id": "globalVars",
+              "widgets": {
+                "comp1": {
+                  "comp": "global-variable-manager",
+                  "script": "http://localhost:8000/global-variable-updater.js",
+                  "attributes": {
+                    "token": "$STORE.auth.accessToken",
+                    "org-id": "$STORE.agent.orgId",
+                    "data-center": "$STORE.app.datacenter",
+                    "variable-id": "ed98c1dc-00c0-4db0-9926-c88422405e0a",
+                    "variable-id-2": "122a83ab-8fcf-4031-b31e-1273f6f181cc",
+                    "rss-feed-url": "https://example.com/feed.xml",
+                    "rss-feed-label": "Advisories"
+                  }
+                }
+              },
+              "layout": {
+                "areas": [["comp1"]],
+                "size": {
+                  "cols": [1],
+                  "rows": [1]
+              }
+            }
+          }
+        },
         {
           "nav": {
             "label": "$I18N.qmw.recordings",
