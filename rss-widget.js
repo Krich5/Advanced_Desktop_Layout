@@ -1,5 +1,5 @@
 /**
- * V1
+ * V2
  */
 (function() {
   class RssWidget extends HTMLElement {
@@ -12,13 +12,12 @@
       this.token = '';
       this.orgId = '';
       this.dataCenter = '';
-      this.baseUrl = '';
       this.variableId = '';
       this.textValue = '';
     }
 
     static get observedAttributes() {
-      return ['rss-feed-url', 'label', 'token', 'org-id', 'data-center', 'base-url', 'variable-id'];
+      return ['rss-feed-url', 'label', 'token', 'org-id', 'data-center', 'variable-id'];
     }
 
     attributeChangedCallback(name, _old, value) {
@@ -27,7 +26,6 @@
       if (name === 'token') this.token = value || '';
       if (name === 'org-id') this.orgId = value || '';
       if (name === 'data-center') this.dataCenter = value || '';
-      if (name === 'base-url') this.baseUrl = value || '';
       if (name === 'variable-id') this.variableId = value || '';
       if (this.isConnected) this.loadFeed();
     }
@@ -41,28 +39,32 @@
       this.items = [];
       this.textValue = '';
 
+      // Try RSS feed first if provided
       if (this.feedUrl) {
         try {
           const res = await fetch(this.feedUrl, { headers: { Accept: 'application/rss+xml,text/xml' } });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const text = await res.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(text, 'text/xml');
-          const titles = Array.from(doc.querySelectorAll('item > title')).map(n => n.textContent || '').filter(Boolean);
-          this.items = titles.slice(0, 5);
-          this.render();
-          return;
+          if (res.ok) {
+            const text = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/xml');
+            const titles = Array.from(doc.querySelectorAll('item > title')).map(n => n.textContent || '').filter(Boolean);
+            this.items = titles.slice(0, 5);
+            if (this.items.length > 0) {
+              this.render();
+              return;
+            }
+          }
         } catch (err) {
-          console.error('RSS load failed', err);
+          console.warn('RSS load failed, falling back to variable', err);
         }
       }
 
+      // Fallback to Global Variable
       await this.loadVariableFallback();
-      this.render(this.items.length === 0 && !this.textValue ? 'Feed unavailable' : undefined);
+      this.render(this.items.length === 0 && !this.textValue ? 'No advisory message' : undefined);
     }
 
-    apiBase() {
-      if (this.baseUrl) return this.baseUrl;
+    getApiUrl() {
       const dcMap = {
         'us1': 'https://api.wxcc-us1.cisco.com',
         'eu1': 'https://api.wxcc-eu1.cisco.com',
@@ -78,7 +80,8 @@
         return;
       }
       try {
-        const res = await fetch(`${this.apiBase()}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
+        const apiUrl = this.getApiUrl();
+        const res = await fetch(`${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
           headers: {
             'Authorization': `Bearer ${this.token}`,
             'Accept': 'application/json'
@@ -86,7 +89,7 @@
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        this.textValue = data.defaultValue || '';
+        this.textValue = data.defaultValue || data.value || data.variableValue || '';
       } catch (err) {
         console.error('Variable load failed', err);
       }
@@ -147,5 +150,6 @@
 
   if (!customElements.get('rss-widget')) {
     customElements.define('rss-widget', RssWidget);
+    console.log('RSS Widget registered');
   }
 })();
