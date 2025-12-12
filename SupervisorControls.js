@@ -1,5 +1,5 @@
 /**
- * Changed labels on variables
+ * Ready to Deploy
  */
 
 (function() {
@@ -264,6 +264,16 @@
         transition: all 0.2s;
         position: relative;
       }
+      .card-check {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: #10b981;
+        color: #fff;
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 10px;
+      }
       
       .variable-card:hover {
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -458,6 +468,7 @@
       this.isEditing = false;
       this.editingVariable = null;
       this.editingVariableName = null;
+      this.successFlags = {};
     }
     
     static get observedAttributes() {
@@ -489,8 +500,19 @@
     }
     
     updateStatus() {}
+
+    markSuccess(id) {
+      if (!id) return;
+      this.successFlags[id] = true;
+      setTimeout(() => {
+        delete this.successFlags[id];
+        this.renderVariables();
+      }, 2500);
+      this.renderVariables();
+    }
     
     showMessage(message, type = 'info') {
+      if (type === 'success') return; // suppress success banners
       const container = this.shadowRoot.getElementById('messageContainer');
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${type}`;
@@ -680,6 +702,8 @@
       }
       const value = (variable.value || variable.variableValue || variable.defaultValue || '');
       const isEditing = !isBoolean && this.editingVariableName === (variable.name || variable.variableName);
+      const successKey = (variable.id || variable.name || variable.variableName || '').toString();
+      const showSuccess = !!this.successFlags[successKey];
       
       return `
         <div class="variable-card">
@@ -691,6 +715,7 @@
                   ? `<button class="icon-btn save save-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" data-id="${this.escapeHtml(variable.id || '')}" title="Save" style="padding:4px 6px;">💾</button>`
                   : `<button class="icon-btn edit edit-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" data-id="${this.escapeHtml(variable.id || '')}" title="Edit" style="padding:4px 6px;">✏️</button>`)}
           </div>
+          ${showSuccess ? '<div class="card-check">✓</div>' : ''}
           ${isBoolean
             ? `<label style="display:flex;align-items:center;gap:10px;font-weight:600;color:#111827;">
                  <div class="switch">
@@ -758,11 +783,11 @@
               this.variables.push(updated);
             }
           }
-          this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
-          this.editingVariableName = null;
-          this.renderVariables();
-          return;
-        }
+        this.markSuccess(targetId || finalName);
+        this.editingVariableName = null;
+        this.renderVariables();
+        return;
+      }
 
         // Legacy/globalVariables endpoint (name-based) when no variableId is provided.
         const response = await fetch(`${apiUrl}/v1/globalVariables`, {
@@ -782,7 +807,7 @@
           throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
         
-        this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
+        this.markSuccess(targetId || finalName);
         this.editingVariableName = null;
         const updated = {
           id: targetId || finalName,
