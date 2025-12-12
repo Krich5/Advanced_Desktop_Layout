@@ -1,3 +1,7 @@
+/**
+ * V1
+ */
+
 (function() {
   const template = document.createElement('template');
   template.innerHTML = `
