@@ -1,49 +1,59 @@
-# Advanced Desktop Layout
+# Supervisor Controls Widget for Webex Contact Center
 
-Standalone HTML/JS/CSS helper panel you can iframe inside Webex Contact Center Agent Desktop to update a global variable.
+A single-file, no-build widget (`SupervisorControls.js`) you can host (GitHub Pages or any static host) and drop into a Webex Contact Center Agent Desktop layout. It lets supervisors:
+- Update an advisory message (global variable).
+- Toggle CCB (boolean global variable).
+- View/update override hours (start/end, working flag) and an override message (global variable) that shows only when the override is enabled.
 
-## Quick start
+## Attributes to pass from the Desktop Layout
+All attributes are required unless noted.
+- `script`: URL to the hosted `SupervisorControls.js`.
+- `token`: `$STORE.auth.accessToken`
+- `org-id`: `$STORE.auth.orgId`
+- `data-center`: e.g., `us1`
+- `globvar-advisory-message-id`: CAD variable ID for the advisory message (string).
+- `globvar-ccb-id`: CAD variable ID for the CCB toggle (Boolean).
+- `override-id`: Override Hours ID (for the overrides API).
+- `override-message-var-id`: CAD variable ID for the override message (string).
+- `base-url` (optional): Override the API base if needed (defaults by data center).
+- `theme` (optional): `light` or `dark`. Defaults to light.
 
-1) Open `index.html` in a browser (no build step required).  
-2) Fill in the variable name, type, value, API base URL, and a valid Bearer token, then submit.
-
-## Embedding as an iframe
-
-Serve the folder via your preferred static host (or a simple local server) and embed:
-
-```html
-        {
-            "nav": {
-              "label": "Supervisor Controls",
-              "icon": "settings",
-              "iconType": "momentum",
-              "navigateTo": "SupervisorControls",
-              "align": "top"
-            },
-            "page": {
-              "id": "SupervisorControls",
-              "widgets": {
-                "comp1": {
-                  "comp": "global-variable-manager",
-                  "script": "https://krich5.github.io/Advanced_Desktop_Layout/SupervisorControls.js",
-                  "attributes": {
-                    "token": "$STORE.auth.accessToken",
-                    "org-id": "$STORE.agent.orgId",
-                    "data-center": "$STORE.app.datacenter",
-                    "variable-id": "ed98c1dc-00c0-4db0-9926-c88422405e0a",
-                    "variable-id-2": "122a83ab-8fcf-4031-b31e-1273f6f181cc"
-                  }
-                }
-              },
-              "layout": {
-                "areas": [["comp1"]],
-                "size": {
-                  "cols": [1],
-                  "rows": [1]
-              }
-            }
-          }
-        }
+## Sample layout snippet (actions widget)
+```json
+"widgets": {
+  "comp1": {
+    "comp": "actions",
+    "script": "https://yourhost/SupervisorControls.js",
+    "attributes": {
+      "token": "$STORE.auth.accessToken",
+      "org-id": "$STORE.auth.orgId",
+      "data-center": "us1",
+      "globvar-advisory-message-id": "<advisory-var-id>",
+      "globvar-ccb-id": "<ccb-var-id>",
+      "override-id": "<override-id>",
+      "override-message-var-id": "<override-message-var-id>",
+      "theme": "light"
+    }
+  }
+}
 ```
 
-You can inject the token and other params via query string and pre-fill the form with a small script if desired. No external dependencies are used.
+## Behavior
+- Icon button cycles: pencil (edit) → save (while editing) → check (after save) → back to pencil.
+- CCB toggle updates immediately on change.
+- Override view shows the same toggle; changing it saves the override with existing date/time/message values.
+- Override message only displays when the override is enabled; label sits above the box.
+- Edit mode lightly tints inputs to indicate an active edit state.
+
+## API calls used
+- `GET/PUT /organization/{orgId}/cad-variable/{id}` for CAD/global variables.
+- `GET/PUT /organization/{orgId}/overrides/{id}` for override hours.
+Token must have rights to read/update the referenced resources.
+
+## Hosting and local testing
+- Host `SupervisorControls.js` on GitHub Pages or any static file host, then reference its URL in the layout.
+- For local testing, serve the directory (e.g., `python3 -m http.server 8000`) and point `script` to `http://localhost:8000/SupervisorControls.js`.
+
+## Theming
+- Light is default. Set `theme="dark"` to force dark palette.
+
