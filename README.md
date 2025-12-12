@@ -15,7 +15,6 @@ All attributes are required unless noted.
 - `globvar-ccb-id`: CAD variable ID for the CCB toggle (Boolean).
 - `override-id`: Override Hours ID (for the overrides API).
 - `override-message-var-id`: CAD variable ID for the override message (string).
-- `base-url` (optional): Override the API base if needed (defaults by data center).
 
 ## Sample layout snippet (actions widget)
 ```json
