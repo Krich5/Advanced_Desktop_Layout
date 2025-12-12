@@ -1,5 +1,5 @@
 /**
- * Reset
+ * Changed Name
  */
 
 (function() {
