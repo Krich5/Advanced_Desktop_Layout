@@ -249,6 +249,7 @@
         border-radius: 6px;
         padding: 16px;
         transition: all 0.2s;
+        position: relative;
       }
       
       .variable-card:hover {
@@ -297,8 +298,45 @@
         color: #049fd9;
       }
       
-      .icon-btn.delete:hover {
-        color: #dc3545;
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 42px;
+        height: 24px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .2s;
+        border-radius: 24px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .2s;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      }
+      .switch input:checked + .slider {
+        background-color: #10b981;
+      }
+      .switch input:checked + .slider:before {
+        transform: translateX(18px);
       }
       
       .variable-value {
@@ -315,6 +353,19 @@
         max-height: 320px;
         overflow-y: auto;
         border: 1px solid #e9ecef;
+      }
+      .boolean-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .boolean-value {
+        min-height: unset;
+        max-height: unset;
+        padding: 10px 12px;
+        margin: 0;
+        flex: 1;
       }
       
       .empty-state {
@@ -389,6 +440,7 @@
       this.dataCenter = '';
       this.baseUrl = '';
       this.variableId = '';
+      this.variableId2 = '';
       this.variables = [];
       this.isEditing = false;
       this.editingVariable = null;
@@ -396,7 +448,7 @@
     }
     
     static get observedAttributes() {
-      return ['token', 'org-id', 'data-center', 'variable-id', 'base-url'];
+      return ['token', 'org-id', 'data-center', 'variable-id', 'variable-id-2', 'base-url'];
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
@@ -404,6 +456,7 @@
       if (name === 'org-id') this.orgId = newValue;
       if (name === 'data-center') this.dataCenter = newValue;
       if (name === 'variable-id') this.variableId = newValue;
+      if (name === 'variable-id-2') this.variableId2 = newValue;
       if (name === 'base-url') this.baseUrl = newValue;
       
       if (this.token && this.orgId) {
@@ -497,44 +550,50 @@
         return;
       }
       
-      const container = this.shadowRoot.getElementById('variablesContainer');
-      container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading variables...</div>';
-      
       try {
-        // If a specific variable-id is provided, fetch just that variable.
-        if (this.variableId) {
-          await this.loadVariableById(container);
-          return;
-        }
+        const container = this.shadowRoot.getElementById('variablesContainer');
+        container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading variables...</div>';
 
-        const apiUrl = this.getApiUrl();
-        const response = await fetch(`${apiUrl}/v1/globalVariables?orgId=${this.orgId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json'
+        const ids = [this.variableId, this.variableId2].filter(Boolean);
+        if (ids.length > 0) {
+          const results = [];
+          for (const id of ids) {
+            const v = await this.loadVariableById(container, id);
+            if (v) results.push(v);
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          this.variables = results;
+        } else {
+          // Fallback to list if no ids provided.
+          const apiUrl = this.getApiUrl();
+          const response = await fetch(`${apiUrl}/v1/globalVariables?orgId=${this.orgId}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          this.variables = data.data || data.globalVariables || [];
         }
-        
-        const data = await response.json();
-        this.variables = data.data || data.globalVariables || [];
         this.renderVariables();
         this.showMessage(`Loaded ${this.variables.length} variables`, 'success');
       } catch (error) {
         this.showMessage(`Error loading variables: ${error.message}`, 'error');
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variables</p></div>`;
+        const container = this.shadowRoot.getElementById('variablesContainer');
+        if (container) container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variables</p></div>`;
       }
     }
 
-    async loadVariableById(containerEl) {
+    async loadVariableById(containerEl, idOverride) {
       try {
         const apiUrl = this.getApiUrl();
         const response = await fetch(
-          `${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`,
+          `${apiUrl}/organization/${this.orgId}/cad-variable/${idOverride || this.variableId}`,
           {
             method: 'GET',
             headers: {
@@ -553,17 +612,16 @@
           id: data.id,
           name: data.name,
           variableValue: data.defaultValue,
+          variableType: data.variableType || 'String',
           raw: data
         };
-        this.variables = [normalized];
-        this.prefillEditorFromVariable(normalized);
-        this.renderVariables();
-        this.showMessage(`Loaded variable "${data.name}"`, 'success');
+        return normalized;
       } catch (error) {
         this.showMessage(`Error loading variable: ${error.message}`, 'error');
         if (containerEl) {
           containerEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Error loading variable</p></div>`;
         }
+        return null;
       }
     }
     
@@ -585,49 +643,73 @@
       container.querySelectorAll('.edit-var').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const varName = e.currentTarget.dataset.name;
-          const variable = this.variables.find(v => (v.name || v.variableName) === varName);
+          const varId = e.currentTarget.dataset.id;
+          const variable = this.variables.find(v => (v.name || v.variableName) === varName || v.id === varId);
           this.showEditor(variable);
         });
       });
       container.querySelectorAll('.save-var').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const varName = e.currentTarget.dataset.name;
+          const varId = e.currentTarget.dataset.id;
           const card = e.currentTarget.closest('.variable-card');
           const textarea = card ? card.querySelector('.edit-value') : null;
           const newVal = textarea ? textarea.value : '';
-          this.saveVariableInline(varName, newVal);
+          this.saveVariableInline(varName, newVal, varId);
+        });
+      });
+      container.querySelectorAll('.bool-toggle').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+          const varName = e.currentTarget.dataset.name;
+          const varId = e.currentTarget.dataset.id;
+          const newVal = e.currentTarget.checked ? 'true' : 'false';
+          this.saveVariableInline(varName, newVal, varId);
         });
       });
     
     }
     
     createVariableCard(variable) {
-      const name = 'Advisory Message';
+      const isBoolean = (variable.variableType || '').toLowerCase() === 'boolean';
+      const name = variable.name || variable.variableName || (isBoolean ? 'Toggle' : 'Advisory Message');
       const value = (variable.value || variable.variableValue || variable.defaultValue || '');
-      const isEditing = this.editingVariableName === (variable.name || variable.variableName);
+      const isEditing = !isBoolean && this.editingVariableName === (variable.name || variable.variableName);
       
       return `
         <div class="variable-card">
           <div class="variable-header">
             <div class="variable-name">${this.escapeHtml(name)}</div>
-            ${isEditing
-              ? `<button class="icon-btn save save-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" title="Save" style="padding:4px 6px;">💾</button>`
-              : `<button class="icon-btn edit edit-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" title="Edit" style="padding:4px 6px;">✏️</button>`}
+            ${isBoolean
+              ? ''
+              : (isEditing
+                  ? `<button class="icon-btn save save-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" data-id="${this.escapeHtml(variable.id || '')}" title="Save" style="padding:4px 6px;">💾</button>`
+                  : `<button class="icon-btn edit edit-var" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" data-id="${this.escapeHtml(variable.id || '')}" title="Edit" style="padding:4px 6px;">✏️</button>`)}
           </div>
-          ${isEditing
-            ? `<textarea class="inline-textarea edit-value">${this.escapeHtml(value)}</textarea>`
-            : `<div class="variable-value">${this.escapeHtml(value)}</div>`}
+          ${isBoolean
+            ? `<label style="display:flex;align-items:center;gap:10px;font-weight:600;color:#111827;">
+                 <div class="switch">
+                   <input type="checkbox" class="bool-toggle" data-name="${this.escapeHtml(variable.name || variable.variableName || '')}" data-id="${this.escapeHtml(variable.id || '')}" ${value === 'true' || value === true ? 'checked' : ''}>
+                   <span class="slider"></span>
+                 </div>
+                 <span>${value === 'true' || value === true ? 'On' : 'Off'}</span>
+               </label>`
+            : (isEditing
+                ? `<textarea class="inline-textarea edit-value">${this.escapeHtml(value)}</textarea>`
+                : `<div class="variable-value">${this.escapeHtml(value)}</div>`)}
         </div>
       `;
     }
 
-    async saveVariableInline(name, value) {
+    async saveVariableInline(name, value, idOverride) {
       const finalName = name && name.trim()
         ? name.trim()
         : (this.variables[0] && (this.variables[0].name || this.variables[0].variableName)) || '';
       const finalValue = value !== undefined
         ? value
         : (this.variables[0] && (this.variables[0].value || this.variables[0].variableValue || this.variables[0].defaultValue)) || '';
+
+      const sourceVar = this.variables.find(v => v.id === idOverride || (v.name || v.variableName) === finalName) || this.variables[0];
+      const targetId = idOverride || (sourceVar && sourceVar.id) || this.variableId || this.variableId2;
       
       if (!finalName) {
         this.showMessage('Variable name is required', 'error');
@@ -638,15 +720,15 @@
         const apiUrl = this.getApiUrl();
 
         // If a specific variableId was provided, use the CAD variable endpoint.
-        if (this.variableId) {
-          const source = (this.variables && this.variables[0] && this.variables[0].raw) || {};
+        if (targetId) {
+          const source = (sourceVar && sourceVar.raw) || {};
           const payload = Object.assign({}, source, {
-            id: this.variableId,
+            id: targetId,
             name: source.name || finalName,
             defaultValue: finalValue,
           });
 
-          const res = await fetch(`${apiUrl}/organization/${this.orgId}/cad-variable/${this.variableId}`, {
+          const res = await fetch(`${apiUrl}/organization/${this.orgId}/cad-variable/${targetId}`, {
             method: 'PUT',
             headers: {
               'Authorization': `Bearer ${this.token}`,
@@ -661,7 +743,15 @@
           }
 
           // Refresh the current variable
-          await this.loadVariableById();
+          const updated = await this.loadVariableById(null, targetId);
+          if (updated) {
+            const idx = this.variables.findIndex(v => v.id === targetId || (v.name || v.variableName) === finalName);
+            if (idx >= 0) {
+              this.variables[idx] = updated;
+            } else {
+              this.variables.push(updated);
+            }
+          }
           this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
           this.editingVariableName = null;
           this.renderVariables();
@@ -688,8 +778,20 @@
         
         this.showMessage(`Variable "${finalName}" saved successfully`, 'success');
         this.editingVariableName = null;
+        const updated = {
+          id: targetId || finalName,
+          name: finalName,
+          variableValue: finalValue,
+          variableType: 'String',
+          raw: {}
+        };
+        const idx = this.variables.findIndex(v => v.id === updated.id || (v.name || v.variableName) === finalName);
+        if (idx >= 0) {
+          this.variables[idx] = Object.assign({}, this.variables[idx], updated);
+        } else {
+          this.variables.push(updated);
+        }
         this.renderVariables();
-        this.loadVariables();
       } catch (error) {
         this.showMessage(`Error saving variable: ${error.message}`, 'error');
       }
