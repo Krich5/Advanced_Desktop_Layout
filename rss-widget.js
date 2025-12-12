@@ -1,14 +1,5 @@
 /**
- * Simple RSS/Marquee widget for Webex CC Advanced Header.
- * Usage in layout advancedHeader:
- * {
- *   "comp": "rss-widget",
- *   "script": "https://your-host/rss-widget.js",
- *   "attributes": {
- *     "rss-feed-url": "https://example.com/feed.xml",
- *     "label": "Advisories"
- *   }
- * }
+ * V1
  */
 (function() {
   class RssWidget extends HTMLElement {
